@@ -1,0 +1,84 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: lb-email-management
+  
+  profiles:
+    active: dev
+  
+  # JPA Configuration (placeholder for H2/PostgreSQL)
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # H2 Database for development (will be replaced with DynamoDB)
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+
+  # Mail Configuration (disabled for local testing)
+  mail:
+    host: smtp.office365.com
+    port: 587
+    username: ${MAIL_USERNAME:your-outlook-email@company.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    
+# Application Configuration
+app:
+  email:
+    username: ${MAIL_USERNAME:your-outlook-email@company.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    host: outlook.office365.com
+    port: 993
+    distribution-lists:
+      - name: "General Support"
+        address: "support@company.com"
+        queue-type: "GENERAL_INQUIRY"
+      - name: "Billing Support"  
+        address: "billing@company.com"
+        queue-type: "BILLING_SUPPORT"
+  
+  sla:
+    first-response-hours: 24
+    resolution-hours: 48
+  
+  queue:
+    max-queue-depth: 1000
+    redistribution-interval: 300000 # 5 minutes
+
+# Logging Configuration
+logging:
+  level:
+    com.callcenter.emailmanagement: DEBUG
+    org.springframework.mail: DEBUG
+    software.amazon.awssdk: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Management Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
